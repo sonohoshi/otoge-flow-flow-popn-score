@@ -11,45 +11,45 @@
 
 /* eslint-disable no-undef */
 (() => {
-
 	const DEBUG = false;
 
-	// エラーチェック
+	// Validate~
 	if (document.domain !== 'p.eagate.573.jp') {
-		document.body.innerHTML = '<a href="https://p.eagate.573.jp/">https://p.eagate.573.jp/</a> 上で実行してください<br>';
+		document.body.innerHTML = '<a href="https://p.eagate.573.jp/">https://p.eagate.573.jp/</a> 위에서 실행해주세요.<br>';
 		return;
 	}
 
 	if (!ea_common_template.userstatus.state.login) {
-		document.body.innerHTML = 'ログインしてください<br>';
+		document.body.innerHTML = '로그인 먼저 해주세요.<br>';
 		return;
 	}
 
 	if (!ea_common_template.userstatus.state.subscription) {
-		document.body.innerHTML = 'e-amusement 有料サービスへの加入が必要です<br>';
+		document.body.innerHTML = 'e-amusement 베이직코스에 가입해야합니다.<br>';
 		return;
 	}
 
 	if (!ea_common_template.userstatus.state.eapass) {
-		document.body.innerHTML = '参照中の e-amusement pass がありません<br>';
+		document.body.innerHTML = '참조중인 e-amusement pass가 없습니다.<br>';
 		return;
 	}
 
 	if (!ea_common_template.userstatus.state.playdata) {
-		document.body.innerHTML = 'プレーデータがありません<br>';
+		document.body.innerHTML = '플레이 데이터가 없습니다.<br>';
 		return;
 	}
 
-	// 重複起動チェック
+	// 중복 실행 체크
 	if (window.BOOKMARKLET_TOOL_POPN) {
-		document.body.insertAdjacentHTML('beforeend', '既に実行済みです<br>');
+		document.body.insertAdjacentHTML('beforeend', '이미 실행중이거나 끝났습니다.<br>');
 		return;
 	}
+	// ~Validate
 
 	window.BOOKMARKLET_TOOL_POPN = true;
 
 	/**
-	 * 頭文字リスト
+	 * 초성 목록
 	 */
 	const initials = [
 		'ｱ', 'ｲ', 'ｳ', 'ｴ', 'ｵ',
@@ -71,7 +71,7 @@
 	];
 
 	/**
-	 * Blob を UTF-8 文字列にパース
+	 * Blob을 UTF-8문자열로 변환
 	 */
 	const parseBlob = blob => {
 		return new Promise(resolve => {
@@ -84,23 +84,17 @@
 	};
 
 	/**
-	 * HTML 文字列を DOM にパース
+	 * HTML문자열을 DOM으로 변환
 	 */
 	const parseHTML = string => new DOMParser().parseFromString(string, 'text/html');
 
-	/**
-	 * プロフィールページをパース
-	 */
+	// 프로필 페이지 파싱
 	const parseProfilePage = dom => {
-
+		// 파싱 시작
 		const array = [];
-
-		// 取得
 		const table = dom.getElementsByClassName('st_box').item(0);
-
 		if (table !== null) {
 			const elements = table.getElementsByTagName('div');
-
 			for (let i = 0; i < elements.length; i++) {
 				const row = elements.item(i);
 				if (row.className !== 'item_st') {
@@ -113,37 +107,32 @@
 				if (1 <= childCount) {
 					childTagName = row.firstElementChild.tagName;
 				}
+
 				if (index !== -1) {
-					// キャラ名取得
-					// console.log(row.innerHTML.substr(index + 4));
+					// 캐릭터 이름
+					console.log(row.innerHTML.substr(index + 4));
 					array.push(row.innerHTML.substr(index + 4));
-				} else if (childTagName === 'IMG') {
-					// ex ramp
-					// console.log('ex ramp');
-				} else if (1 < childCount) {
-					// option 
-					// console.log('option');
+				} else if (childTagName === 'IMG' || 1 < childCount) {
+					// ex ramp or option
+					continue;
 				} else {
 					// others
-					// console.log(row.innerHTML);
+					console.log(row.innerHTML);
 					array.push(row.innerHTML);
 				}
 			}
 		}
 
 		return array;
-
 	};
 
 	/**
-	 * ページをパース
+	 * 페이지 파싱
 	 */
 	const parsePage = (dom, pageNumber) => {
-		let array = [];
-
-		// 取得
+		// 파싱 시작
 		const table = dom.getElementsByClassName('mu_list_table').item(0);
-
+		let array = [];
 		let i = 0;
 		let rowCount = 0;
 		if (table !== null) {
@@ -321,9 +310,7 @@
 	profile取得
 	*/
 	const loadProfile = () => {
-
 		const url = 'https://p.eagate.573.jp/game/popn/riddles/playdata/';
-
 		return fetch(url, {
 				credentials: 'include'
 			})
@@ -333,7 +320,6 @@
 				const array = parseProfilePage(parseHTML(string));
 				return array;
 			});
-
 	};
 
 	/**
